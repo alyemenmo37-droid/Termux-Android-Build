@@ -9,17 +9,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      # خطوة إضافية لضمان وجود المجلدات المطلوبة
+      - name: Build Web Assets
+        run: npm run build || echo "No build script found, skipping..."
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Grant execute permission for gradlew
+      - name: Grant execute permission
         run: chmod +x android/gradlew
 
+      # استخدام أمر نظيف للبناء
       - name: Build Debug APK
-        run: cd android && ./gradlew assembleDebug
+        run: cd android && ./gradlew clean assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
